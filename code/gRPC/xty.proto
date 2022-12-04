@@ -1,0 +1,34 @@
+
+syntax = "proto3";
+
+
+package protos;
+
+service EngineAPI {
+  rpc engineApi (Request) returns (Reply) {}
+}
+
+// 目前国家侧调度推理没用到IssueOrder
+service IssueOrder {
+  rpc EngineIssueOrder (OrderRequest) returns (OrderReply) {}
+}
+
+
+message Request {
+  string message = 1;
+}
+
+message Reply {
+  int32 code = 1;
+  string msg = 2;
+  string data = 3;
+}
+
+message OrderRequest {
+  string message = 1;
+}
+
+message OrderReply {
+  int32 code = 1;
+  string msg = 2;
+}
