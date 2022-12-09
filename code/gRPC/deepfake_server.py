@@ -11,6 +11,7 @@ import tempfile
 import numpy as np
 from gRPC import xty_pb2
 from gRPC import xty_pb2_grpc
+import torch
 
 
 
@@ -81,38 +82,39 @@ class Deepfake_Greeter(xty_pb2_grpc.EngineAPIServicer):
         engineName = 'cap'
         targetPerson=''
         try:
-            logger.info('downloading file...')
-            byte_data = download_file(fileUri, filemd5, filepath)
+            with torch.no_grad():
+                logger.info('downloading file...')
+                byte_data = download_file(fileUri, filemd5, filepath)
 
-            #起始时间
-            startTs = int(round(time.time()*1000))
+                #起始时间
+                startTs = int(round(time.time()*1000))
 
-            with tempfile.NamedTemporaryFile() as temp:
-                temp.write(byte_data)
-                images, images_pos = self.face_detect(dataType, temp.name)
-            assert len(images) > 0 ,"no_face"
+                with tempfile.NamedTemporaryFile() as temp:
+                    temp.write(byte_data)
+                    images, images_pos = self.face_detect(dataType, temp.name)
+                assert len(images) > 0 ,"no_face"
 
-            images=[Image.fromarray(image).convert('RGB') for image in images ]
+                images=[Image.fromarray(image).convert('RGB') for image in images ]
 
-            targetPerson=self.faceveri.get_td_id(images,images_pos)
+                targetPerson=self.faceveri.get_td_id(images,images_pos)
 
-            faceNum = np.max(np.bincount(images_pos))
+                faceNum = np.max(np.bincount(images_pos))
 
-            # 提取的视频帧的置信度一维数组
-            frame_result,frames_conf = self.deepfake_detect(images, images_pos,dataType)
-            if frame_result.mean()>0.3:
-                engineResult=1
-            else:
-                engineResult=0
-            engineConf=float(frames_conf.mean())
+                # 提取的视频帧的置信度一维数组
+                frame_result,frames_conf = self.deepfake_detect(images, images_pos,dataType)
+                if frame_result.mean()>0.3:
+                    engineResult=1
+                else:
+                    engineResult=0
+                engineConf=float(frames_conf.mean())
 
-            #记录结束时间
-            endTs = int(round(time.time()*1000))
-            logger.info(str(endTs-startTs),result='True')
+                #记录结束时间
+                endTs = int(round(time.time()*1000))
+                logger.info(str(endTs-startTs),result='True')
 
-            logger.info('engineResult: {} engineConf: {}'.format(engineResult, engineConf))
-            code = 0
-            msg = 'success'
+                logger.info('engineResult: {} engineConf: {}'.format(engineResult, engineConf))
+                code = 0
+                msg = 'success'
         except AssertionError as a: #人脸数目为0时返回信息
             msg='no_face'
         except Exception as e:
