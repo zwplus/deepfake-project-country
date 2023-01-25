@@ -55,7 +55,7 @@ class faceveri:
                     frame_td_id.append(predict_id)
                     frame_td_conf.append(predict_conf)
                 max_conf=max(frame_td_conf)
-                if max_conf>=0.6:
+                if max_conf>=0.8:
                     frame_td=frame_td_id[frame_td_conf.index(max(frame_td_conf))]
                 else:
                     frame_td='000'
