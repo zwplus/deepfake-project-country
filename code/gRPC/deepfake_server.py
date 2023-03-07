@@ -91,6 +91,7 @@ class Deepfake_Greeter(xty_pb2_grpc.EngineAPIServicer):
 
                 with tempfile.NamedTemporaryFile() as temp:
                     temp.write(byte_data)
+                    temp.seek(0)
                     images, images_pos = self.face_detect(dataType, temp.name)
                 assert len(images) > 0 ,"no_face"
 
@@ -118,13 +119,13 @@ class Deepfake_Greeter(xty_pb2_grpc.EngineAPIServicer):
         except AssertionError as a: #人脸数目为0时返回信息
             msg='no_face'
         except Exception as e:
-            logger.error(traceback.format_exc())
+                logger.error(traceback.format_exc())
 
         data = {
             'engineName': engineName,
             'engineResult': int(engineResult),
             'faceNum': int(faceNum),
-            'targetPerson': '' if targetPerson =='000' else targetPerson,
+            'targetPerson': '' if targetPerson =='00' else targetPerson,
             'engineConf': float(engineConf),
             'timestamp': time.time(),
         }

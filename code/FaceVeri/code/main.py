@@ -20,7 +20,7 @@ class faceveri:
         ]
         self.td_model=Model(self.td_checkpoints,self.td_device)
         self.td_features_dir={}    #空字典
-        self.target_id=['0','1','2','3','4','8','9','10']
+        self.target_id=[str(i) for i in range(27)]
         self.gen_features(dataset)
         
     
@@ -32,12 +32,12 @@ class faceveri:
                     td_image_dir=os.path.join(dataset,i)
                     td_image=[Image.open(os.path.join(td_image_dir,j)) for j in os.listdir(td_image_dir)]
                     td_features=self.td_model.predict(td_image)
-                    td_index=i.zfill(3)
+                    td_index=i.zfill(2)
                     self.td_features_dir[td_index]=td_features
 
     #注意传入的images一定是list,images_pos一定是list，不然会出bug
     def get_td_id(self,images,images_pos):
-        td_id='000'
+        td_id='00'
         try:
             with torch.no_grad():
                 td_features = self.td_model.predict(images)
@@ -55,10 +55,10 @@ class faceveri:
                     frame_td_id.append(predict_id)
                     frame_td_conf.append(predict_conf)
                 max_conf=max(frame_td_conf)
-                if max_conf>=0.8:
+                if max_conf>=0.75:
                     frame_td=frame_td_id[frame_td_conf.index(max(frame_td_conf))]
                 else:
-                    frame_td='000'
+                    frame_td='00'
                 frames_td_id.append(frame_td)
             td_id=max(frames_td_id,key=frames_td_id.count)
         except Exception as e:

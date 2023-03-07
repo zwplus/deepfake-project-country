@@ -46,7 +46,11 @@ class VideoReader:
 
         if num_frames == -1:
             num_frames = frame_count
-        if second_num_frames:
+        if second_num_frames and frame_count*second_num_frames>=fps:
+            num_frames = int(frame_count / fps * second_num_frames)
+        elif second_num_frames and frame_count*second_num_frames<fps and frame_count >=0 :
+            num_frames = min(frame_count,1)      #如果0帧，num_frame为0，如果不为0帧且其不足1s,就抽一帧
+        elif second_num_frames:
             num_frames = int(frame_count / fps * second_num_frames)
 
         num_frames=min(num_frames,256)
